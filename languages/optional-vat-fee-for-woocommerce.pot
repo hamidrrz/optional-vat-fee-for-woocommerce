@@ -196,3 +196,16 @@ msgstr ""
 #: includes/class-wccpf-checkout.php
 msgid "The optional VAT checkbox is not available on the block-based checkout. Please use the classic checkout shortcode to enable it."
 msgstr ""
+
+#: includes/class-wccpf-order-meta.php
+msgid "Landline phone:"
+msgstr ""
+
+#: includes/class-wccpf-checkout.php
+#: includes/class-wccpf-order-meta.php
+msgid "Landline phone"
+msgstr ""
+
+#: includes/class-wccpf-checkout.php
+msgid "Please enter the landline phone."
+msgstr ""

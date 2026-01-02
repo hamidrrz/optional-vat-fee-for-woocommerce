@@ -15,7 +15,7 @@ function toggleFieldGroup($group, show) {
 		var enabled = $('#wccpf_enable_fee').is(':checked');
 		var $personType = $('.wccpf-person-type');
 		var $individual = $('#wccpf_national_code_field');
-		var $legal = $('#wccpf_legal_name_field, #wccpf_legal_id_field');
+		var $legal = $('#wccpf_legal_name_field, #wccpf_legal_id_field, #wccpf_legal_phone_field');
 
 		$container.attr('data-selected', enabled ? 'yes' : 'no');
 

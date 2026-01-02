@@ -197,3 +197,16 @@ msgstr "لطفاً شناسه ملی معتبر وارد کنید."
 #: includes/class-wccpf-checkout.php
 msgid "The optional VAT checkbox is not available on the block-based checkout. Please use the classic checkout shortcode to enable it."
 msgstr "چک‌باکس مالیات بر ارزش افزوده اختیاری در تسویه‌حساب بلوکی در دسترس نیست. برای فعال‌سازی از شورت‌کد تسویه‌حساب کلاسیک استفاده کنید."
+
+#: includes/class-wccpf-order-meta.php
+msgid "Landline phone:"
+msgstr "تلفن ثابت:"
+
+#: includes/class-wccpf-checkout.php
+#: includes/class-wccpf-order-meta.php
+msgid "Landline phone"
+msgstr "تلفن ثابت"
+
+#: includes/class-wccpf-checkout.php
+msgid "Please enter the landline phone."
+msgstr "لطفاً تلفن ثابت را وارد کنید."

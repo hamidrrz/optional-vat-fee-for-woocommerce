@@ -17,6 +17,7 @@ Add an optional VAT percentage on the WooCommerce checkout page. Customers can o
 
 Notes:
 - This plugin targets the classic (shortcode) checkout. If the block-based checkout is used, the plugin shows a notice and does not add the field.
+- GitHub: https://github.com/hamidrrz/optional-vat-fee-for-woocommerce
 
 == Installation ==
 1. Upload the `optional-vat-fee-for-woocommerce` folder to `/wp-content/plugins/`.

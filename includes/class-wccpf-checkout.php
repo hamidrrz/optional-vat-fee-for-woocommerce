@@ -11,10 +11,12 @@ class WCCPF_Checkout {
 	const FIELD_NATIONAL_CODE = 'wccpf_national_code';
 	const FIELD_LEGAL_NAME = 'wccpf_legal_name';
 	const FIELD_LEGAL_ID = 'wccpf_legal_id';
+	const FIELD_LEGAL_PHONE = 'wccpf_legal_phone';
 	const USER_META_PERSON_TYPE = 'wccpf_person_type';
 	const USER_META_NATIONAL_CODE = 'wccpf_national_code';
 	const USER_META_LEGAL_NAME = 'wccpf_legal_name';
 	const USER_META_LEGAL_ID = 'wccpf_legal_id';
+	const USER_META_LEGAL_PHONE = 'wccpf_legal_phone';
 	const META_KEY_ENABLED = 'wccpf_enable_fee';
 	const META_KEY_PERCENTAGE = 'wccpf_fee_percentage';
 	const META_KEY_AMOUNT = 'wccpf_fee_amount';
@@ -23,6 +25,7 @@ class WCCPF_Checkout {
 	const META_KEY_NATIONAL_CODE = 'wccpf_national_code';
 	const META_KEY_LEGAL_NAME = 'wccpf_legal_name';
 	const META_KEY_LEGAL_ID = 'wccpf_legal_id';
+	const META_KEY_LEGAL_PHONE = 'wccpf_legal_phone';
 
 	public static function init() {
 		add_action( 'wp', array( __CLASS__, 'maybe_add_block_notice' ) );
@@ -105,6 +108,7 @@ class WCCPF_Checkout {
 			self::FIELD_NATIONAL_CODE,
 			self::FIELD_LEGAL_NAME,
 			self::FIELD_LEGAL_ID,
+			self::FIELD_LEGAL_PHONE,
 		);
 
 		if ( ! in_array( $key, $allowed_keys, true ) ) {
@@ -154,6 +158,7 @@ class WCCPF_Checkout {
 		if ( 'legal' === $person_type ) {
 			$legal_name = sanitize_text_field( self::get_posted_value( self::FIELD_LEGAL_NAME, $data ) );
 			$legal_id   = self::sanitize_digits( self::get_posted_value( self::FIELD_LEGAL_ID, $data ) );
+			$legal_phone = self::sanitize_digits( self::get_posted_value( self::FIELD_LEGAL_PHONE, $data ) );
 
 			if ( '' !== $legal_name ) {
 				$order->update_meta_data( self::META_KEY_LEGAL_NAME, $legal_name );
@@ -161,6 +166,10 @@ class WCCPF_Checkout {
 
 			if ( '' !== $legal_id ) {
 				$order->update_meta_data( self::META_KEY_LEGAL_ID, $legal_id );
+			}
+
+			if ( '' !== $legal_phone ) {
+				$order->update_meta_data( self::META_KEY_LEGAL_PHONE, $legal_phone );
 			}
 		}
 
@@ -207,6 +216,7 @@ class WCCPF_Checkout {
 		if ( 'legal' === $person_type ) {
 			$legal_name = sanitize_text_field( self::get_posted_value( self::FIELD_LEGAL_NAME, $data ) );
 			$legal_id   = self::sanitize_digits( self::get_posted_value( self::FIELD_LEGAL_ID, $data ) );
+			$legal_phone = self::sanitize_digits( self::get_posted_value( self::FIELD_LEGAL_PHONE, $data ) );
 
 			if ( '' !== $legal_name ) {
 				update_user_meta( $customer_id, self::USER_META_LEGAL_NAME, $legal_name );
@@ -214,6 +224,10 @@ class WCCPF_Checkout {
 
 			if ( '' !== $legal_id ) {
 				update_user_meta( $customer_id, self::USER_META_LEGAL_ID, $legal_id );
+			}
+
+			if ( '' !== $legal_phone ) {
+				update_user_meta( $customer_id, self::USER_META_LEGAL_PHONE, $legal_phone );
 			}
 		}
 	}
@@ -286,6 +300,7 @@ class WCCPF_Checkout {
 		self::set_session_value( self::FIELD_NATIONAL_CODE, null );
 		self::set_session_value( self::FIELD_LEGAL_NAME, null );
 		self::set_session_value( self::FIELD_LEGAL_ID, null );
+		self::set_session_value( self::FIELD_LEGAL_PHONE, null );
 	}
 
 	private static function set_person_fields_from_array( $data, $selected ) {
@@ -309,6 +324,7 @@ class WCCPF_Checkout {
 		$national_code = null;
 		$legal_name    = null;
 		$legal_id      = null;
+		$legal_phone   = null;
 
 		if ( array_key_exists( self::FIELD_NATIONAL_CODE, $data ) ) {
 			$national_code = self::sanitize_digits( $data[ self::FIELD_NATIONAL_CODE ] );
@@ -322,6 +338,10 @@ class WCCPF_Checkout {
 			$legal_id = self::sanitize_digits( $data[ self::FIELD_LEGAL_ID ] );
 		}
 
+		if ( array_key_exists( self::FIELD_LEGAL_PHONE, $data ) ) {
+			$legal_phone = self::sanitize_digits( $data[ self::FIELD_LEGAL_PHONE ] );
+		}
+
 		if ( null !== $national_code ) {
 			self::set_session_value( self::FIELD_NATIONAL_CODE, $national_code );
 		}
@@ -332,6 +352,10 @@ class WCCPF_Checkout {
 
 		if ( null !== $legal_id ) {
 			self::set_session_value( self::FIELD_LEGAL_ID, $legal_id );
+		}
+
+		if ( null !== $legal_phone ) {
+			self::set_session_value( self::FIELD_LEGAL_PHONE, $legal_phone );
 		}
 	}
 
@@ -454,6 +478,22 @@ class WCCPF_Checkout {
 			),
 			self::get_session_value( self::FIELD_LEGAL_ID )
 		);
+
+		woocommerce_form_field(
+			self::FIELD_LEGAL_PHONE,
+			array(
+				'type'              => 'number',
+				'class'             => $legal_classes,
+				'label'             => __( 'Landline phone', 'optional-vat-fee-for-woocommerce' ),
+				'required'          => true,
+				'custom_attributes' => array(
+					'inputmode' => 'numeric',
+					'pattern'   => '[0-9]*',
+					'autocomplete' => 'off',
+				),
+			),
+			self::get_session_value( self::FIELD_LEGAL_PHONE )
+		);
 		echo '</div>';
 
 		return ob_get_clean();
@@ -486,6 +526,7 @@ class WCCPF_Checkout {
 		if ( 'legal' === $person_type ) {
 			$legal_name = sanitize_text_field( self::get_posted_value( self::FIELD_LEGAL_NAME, $data ) );
 			$legal_id   = self::sanitize_digits( self::get_posted_value( self::FIELD_LEGAL_ID, $data ) );
+			$legal_phone = self::sanitize_digits( self::get_posted_value( self::FIELD_LEGAL_PHONE, $data ) );
 
 			if ( '' === $legal_name ) {
 				$errors->add( 'wccpf_legal_name_required', __( 'Please enter the legal entity name.', 'optional-vat-fee-for-woocommerce' ) );
@@ -495,6 +536,10 @@ class WCCPF_Checkout {
 				$errors->add( 'wccpf_legal_id_required', __( 'Please enter the legal national ID.', 'optional-vat-fee-for-woocommerce' ) );
 			} elseif ( ! self::check_national_shenase( $legal_id ) ) {
 				$errors->add( 'wccpf_legal_id_invalid', __( 'Please enter a valid legal national ID.', 'optional-vat-fee-for-woocommerce' ) );
+			}
+
+			if ( '' === $legal_phone ) {
+				$errors->add( 'wccpf_legal_phone_required', __( 'Please enter the landline phone.', 'optional-vat-fee-for-woocommerce' ) );
 			}
 		}
 	}
@@ -548,6 +593,7 @@ class WCCPF_Checkout {
 			self::FIELD_NATIONAL_CODE,
 			self::FIELD_LEGAL_NAME,
 			self::FIELD_LEGAL_ID,
+			self::FIELD_LEGAL_PHONE,
 		);
 
 		$data = array();
@@ -589,6 +635,9 @@ class WCCPF_Checkout {
 				return is_string( $value ) ? sanitize_text_field( $value ) : '';
 			case self::FIELD_LEGAL_ID:
 				$value = get_user_meta( $user_id, self::USER_META_LEGAL_ID, true );
+				return is_string( $value ) ? preg_replace( '/\D+/', '', $value ) : '';
+			case self::FIELD_LEGAL_PHONE:
+				$value = get_user_meta( $user_id, self::USER_META_LEGAL_PHONE, true );
 				return is_string( $value ) ? preg_replace( '/\D+/', '', $value ) : '';
 			default:
 				return null;

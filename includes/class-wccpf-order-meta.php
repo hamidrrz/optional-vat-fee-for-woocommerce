@@ -44,6 +44,10 @@ class WCCPF_Order_Meta {
 			echo '<p><strong>' . esc_html__( 'Legal national ID:', 'optional-vat-fee-for-woocommerce' ) . '</strong> ' . esc_html( $meta['legal_id'] ) . '</p>';
 		}
 
+		if ( ! empty( $meta['legal_phone'] ) ) {
+			echo '<p><strong>' . esc_html__( 'Landline phone:', 'optional-vat-fee-for-woocommerce' ) . '</strong> ' . esc_html( $meta['legal_phone'] ) . '</p>';
+		}
+
 		echo '</div>';
 	}
 
@@ -79,6 +83,10 @@ class WCCPF_Order_Meta {
 
 		if ( ! empty( $meta['legal_id'] ) ) {
 			echo '<p>' . esc_html__( 'Legal national ID:', 'optional-vat-fee-for-woocommerce' ) . ' ' . esc_html( $meta['legal_id'] ) . '</p>';
+		}
+
+		if ( ! empty( $meta['legal_phone'] ) ) {
+			echo '<p>' . esc_html__( 'Landline phone:', 'optional-vat-fee-for-woocommerce' ) . ' ' . esc_html( $meta['legal_phone'] ) . '</p>';
 		}
 
 		echo '</section>';
@@ -137,6 +145,13 @@ class WCCPF_Order_Meta {
 			);
 		}
 
+		if ( ! empty( $meta['legal_phone'] ) ) {
+			$fields['wccpf_legal_phone'] = array(
+				'label' => __( 'Landline phone', 'optional-vat-fee-for-woocommerce' ),
+				'value' => $meta['legal_phone'],
+			);
+		}
+
 		return $fields;
 	}
 
@@ -156,6 +171,7 @@ class WCCPF_Order_Meta {
 		$national    = $order->get_meta( WCCPF_Checkout::META_KEY_NATIONAL_CODE );
 		$legal_name  = $order->get_meta( WCCPF_Checkout::META_KEY_LEGAL_NAME );
 		$legal_id    = $order->get_meta( WCCPF_Checkout::META_KEY_LEGAL_ID );
+		$legal_phone = $order->get_meta( WCCPF_Checkout::META_KEY_LEGAL_PHONE );
 
 		$enabled_text = ( 'yes' === $enabled ) ? __( 'Yes', 'optional-vat-fee-for-woocommerce' ) : __( 'No', 'optional-vat-fee-for-woocommerce' );
 
@@ -178,6 +194,7 @@ class WCCPF_Order_Meta {
 			'national_code' => $national,
 			'legal_name' => $legal_name,
 			'legal_id'   => $legal_id,
+			'legal_phone' => $legal_phone,
 		);
 	}
 }
