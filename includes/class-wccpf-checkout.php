@@ -132,33 +132,29 @@ class WCCPF_Checkout {
 			return;
 		}
 
-		if ( ! self::has_valid_checkout_nonce() ) {
-			return;
-		}
-
-		$selected = wc_string_to_bool( self::get_posted_value( self::FIELD_ID, $data ) );
+		$selected = wc_string_to_bool( self::get_value_from_data( self::FIELD_ID, $data ) );
 		$order->update_meta_data( self::META_KEY_ENABLED, $selected ? 'yes' : 'no' );
 
 		if ( ! $selected ) {
 			return;
 		}
 
-		$person_type = wc_clean( self::get_posted_value( self::FIELD_PERSON_TYPE, $data ) );
+		$person_type = wc_clean( self::get_value_from_data( self::FIELD_PERSON_TYPE, $data ) );
 		if ( in_array( $person_type, array( 'individual', 'legal' ), true ) ) {
 			$order->update_meta_data( self::META_KEY_PERSON_TYPE, $person_type );
 		}
 
 		if ( 'individual' === $person_type ) {
-			$national_code = self::sanitize_digits( self::get_posted_value( self::FIELD_NATIONAL_CODE, $data ) );
+			$national_code = self::sanitize_digits( self::get_value_from_data( self::FIELD_NATIONAL_CODE, $data ) );
 			if ( '' !== $national_code ) {
 				$order->update_meta_data( self::META_KEY_NATIONAL_CODE, $national_code );
 			}
 		}
 
 		if ( 'legal' === $person_type ) {
-			$legal_name = sanitize_text_field( self::get_posted_value( self::FIELD_LEGAL_NAME, $data ) );
-			$legal_id   = self::sanitize_digits( self::get_posted_value( self::FIELD_LEGAL_ID, $data ) );
-			$legal_phone = self::sanitize_digits( self::get_posted_value( self::FIELD_LEGAL_PHONE, $data ) );
+			$legal_name = sanitize_text_field( self::get_value_from_data( self::FIELD_LEGAL_NAME, $data ) );
+			$legal_id   = self::sanitize_digits( self::get_value_from_data( self::FIELD_LEGAL_ID, $data ) );
+			$legal_phone = self::sanitize_digits( self::get_value_from_data( self::FIELD_LEGAL_PHONE, $data ) );
 
 			if ( '' !== $legal_name ) {
 				$order->update_meta_data( self::META_KEY_LEGAL_NAME, $legal_name );
@@ -190,16 +186,12 @@ class WCCPF_Checkout {
 			return;
 		}
 
-		if ( ! self::has_valid_checkout_nonce() ) {
-			return;
-		}
-
-		$selected = wc_string_to_bool( self::get_posted_value( self::FIELD_ID, $data ) );
+		$selected = wc_string_to_bool( self::get_value_from_data( self::FIELD_ID, $data ) );
 		if ( ! $selected ) {
 			return;
 		}
 
-		$person_type = wc_clean( self::get_posted_value( self::FIELD_PERSON_TYPE, $data ) );
+		$person_type = wc_clean( self::get_value_from_data( self::FIELD_PERSON_TYPE, $data ) );
 		if ( ! in_array( $person_type, array( 'individual', 'legal' ), true ) ) {
 			return;
 		}
@@ -207,16 +199,16 @@ class WCCPF_Checkout {
 		update_user_meta( $customer_id, self::USER_META_PERSON_TYPE, $person_type );
 
 		if ( 'individual' === $person_type ) {
-			$national_code = self::sanitize_digits( self::get_posted_value( self::FIELD_NATIONAL_CODE, $data ) );
+			$national_code = self::sanitize_digits( self::get_value_from_data( self::FIELD_NATIONAL_CODE, $data ) );
 			if ( '' !== $national_code ) {
 				update_user_meta( $customer_id, self::USER_META_NATIONAL_CODE, $national_code );
 			}
 		}
 
 		if ( 'legal' === $person_type ) {
-			$legal_name = sanitize_text_field( self::get_posted_value( self::FIELD_LEGAL_NAME, $data ) );
-			$legal_id   = self::sanitize_digits( self::get_posted_value( self::FIELD_LEGAL_ID, $data ) );
-			$legal_phone = self::sanitize_digits( self::get_posted_value( self::FIELD_LEGAL_PHONE, $data ) );
+			$legal_name = sanitize_text_field( self::get_value_from_data( self::FIELD_LEGAL_NAME, $data ) );
+			$legal_id   = self::sanitize_digits( self::get_value_from_data( self::FIELD_LEGAL_ID, $data ) );
+			$legal_phone = self::sanitize_digits( self::get_value_from_data( self::FIELD_LEGAL_PHONE, $data ) );
 
 			if ( '' !== $legal_name ) {
 				update_user_meta( $customer_id, self::USER_META_LEGAL_NAME, $legal_name );
@@ -313,50 +305,40 @@ class WCCPF_Checkout {
 		if ( array_key_exists( self::FIELD_PERSON_TYPE, $data ) ) {
 			$person_type = wc_clean( wp_unslash( $data[ self::FIELD_PERSON_TYPE ] ) );
 		}
+
 		if ( ! in_array( $person_type, array( 'individual', 'legal' ), true ) ) {
 			$person_type = '';
 		}
 
-		if ( '' !== $person_type || array_key_exists( self::FIELD_PERSON_TYPE, $data ) ) {
-			self::set_session_value( self::FIELD_PERSON_TYPE, $person_type );
-		}
+		self::set_session_value( self::FIELD_PERSON_TYPE, $person_type );
 
 		$national_code = null;
 		$legal_name    = null;
 		$legal_id      = null;
 		$legal_phone   = null;
 
-		if ( array_key_exists( self::FIELD_NATIONAL_CODE, $data ) ) {
-			$national_code = self::sanitize_digits( $data[ self::FIELD_NATIONAL_CODE ] );
+		if ( 'individual' === $person_type ) {
+			if ( array_key_exists( self::FIELD_NATIONAL_CODE, $data ) ) {
+				$national_code = self::sanitize_digits( $data[ self::FIELD_NATIONAL_CODE ] );
+			}
+		} elseif ( 'legal' === $person_type ) {
+			if ( array_key_exists( self::FIELD_LEGAL_NAME, $data ) ) {
+				$legal_name = sanitize_text_field( wp_unslash( $data[ self::FIELD_LEGAL_NAME ] ) );
+			}
+
+			if ( array_key_exists( self::FIELD_LEGAL_ID, $data ) ) {
+				$legal_id = self::sanitize_digits( $data[ self::FIELD_LEGAL_ID ] );
+			}
+
+			if ( array_key_exists( self::FIELD_LEGAL_PHONE, $data ) ) {
+				$legal_phone = self::sanitize_digits( $data[ self::FIELD_LEGAL_PHONE ] );
+			}
 		}
 
-		if ( array_key_exists( self::FIELD_LEGAL_NAME, $data ) ) {
-			$legal_name = sanitize_text_field( wp_unslash( $data[ self::FIELD_LEGAL_NAME ] ) );
-		}
-
-		if ( array_key_exists( self::FIELD_LEGAL_ID, $data ) ) {
-			$legal_id = self::sanitize_digits( $data[ self::FIELD_LEGAL_ID ] );
-		}
-
-		if ( array_key_exists( self::FIELD_LEGAL_PHONE, $data ) ) {
-			$legal_phone = self::sanitize_digits( $data[ self::FIELD_LEGAL_PHONE ] );
-		}
-
-		if ( null !== $national_code ) {
-			self::set_session_value( self::FIELD_NATIONAL_CODE, $national_code );
-		}
-
-		if ( null !== $legal_name ) {
-			self::set_session_value( self::FIELD_LEGAL_NAME, $legal_name );
-		}
-
-		if ( null !== $legal_id ) {
-			self::set_session_value( self::FIELD_LEGAL_ID, $legal_id );
-		}
-
-		if ( null !== $legal_phone ) {
-			self::set_session_value( self::FIELD_LEGAL_PHONE, $legal_phone );
-		}
+		self::set_session_value( self::FIELD_NATIONAL_CODE, $national_code );
+		self::set_session_value( self::FIELD_LEGAL_NAME, $legal_name );
+		self::set_session_value( self::FIELD_LEGAL_ID, $legal_id );
+		self::set_session_value( self::FIELD_LEGAL_PHONE, $legal_phone );
 	}
 
 	private static function sanitize_digits( $value ) {
@@ -508,14 +490,14 @@ class WCCPF_Checkout {
 			return;
 		}
 
-		$person_type = wc_clean( self::get_posted_value( self::FIELD_PERSON_TYPE, $data ) );
+		$person_type = wc_clean( self::get_value_from_data( self::FIELD_PERSON_TYPE, $data ) );
 		if ( ! in_array( $person_type, array( 'individual', 'legal' ), true ) ) {
 			$errors->add( 'wccpf_person_type', __( 'Please select a person type for VAT.', 'optional-vat-fee-for-woocommerce' ) );
 			return;
 		}
 
 		if ( 'individual' === $person_type ) {
-			$national_code = self::sanitize_digits( self::get_posted_value( self::FIELD_NATIONAL_CODE, $data ) );
+			$national_code = self::sanitize_digits( self::get_value_from_data( self::FIELD_NATIONAL_CODE, $data ) );
 			if ( '' === $national_code ) {
 				$errors->add( 'wccpf_national_code_required', __( 'Please enter your national code.', 'optional-vat-fee-for-woocommerce' ) );
 			} elseif ( ! self::check_national_code( $national_code ) ) {
@@ -524,9 +506,9 @@ class WCCPF_Checkout {
 		}
 
 		if ( 'legal' === $person_type ) {
-			$legal_name = sanitize_text_field( self::get_posted_value( self::FIELD_LEGAL_NAME, $data ) );
-			$legal_id   = self::sanitize_digits( self::get_posted_value( self::FIELD_LEGAL_ID, $data ) );
-			$legal_phone = self::sanitize_digits( self::get_posted_value( self::FIELD_LEGAL_PHONE, $data ) );
+			$legal_name = sanitize_text_field( self::get_value_from_data( self::FIELD_LEGAL_NAME, $data ) );
+			$legal_id   = self::sanitize_digits( self::get_value_from_data( self::FIELD_LEGAL_ID, $data ) );
+			$legal_phone = self::sanitize_digits( self::get_value_from_data( self::FIELD_LEGAL_PHONE, $data ) );
 
 			if ( '' === $legal_name ) {
 				$errors->add( 'wccpf_legal_name_required', __( 'Please enter the legal entity name.', 'optional-vat-fee-for-woocommerce' ) );
@@ -544,17 +526,25 @@ class WCCPF_Checkout {
 		}
 	}
 
-	private static function get_posted_value( $key, $data ) {
+	private static function get_value_from_data( $key, $data ) {
 		if ( isset( $data[ $key ] ) ) {
 			return $data[ $key ];
 		}
 
-		$value = self::get_request_value( $key );
-		if ( '' !== $value && ( self::has_valid_checkout_nonce() || self::has_valid_update_order_review_nonce() ) ) {
-			return $value;
+		if ( self::has_valid_checkout_nonce() && filter_has_var( INPUT_POST, $key ) ) {
+			return self::get_request_value( $key );
 		}
 
-		return '';
+		$session_value = self::get_session_value_strict( $key );
+		return is_string( $session_value ) ? $session_value : '';
+	}
+
+	private static function get_session_value_strict( $key ) {
+		if ( ! WC()->session ) {
+			return null;
+		}
+
+		return WC()->session->get( $key, null );
 	}
 
 	private static function has_valid_checkout_nonce() {
